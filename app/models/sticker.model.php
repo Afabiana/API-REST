@@ -26,7 +26,8 @@ class StickerModel{
     {
         $query = $this->db->prepare("INSERT INTO figuritas (numero, nombre, apellido, id_pais) VALUES (?,?,?,?)");
         $query->execute([$numero, $nombre, $apellido, $id_pais]);
-        return $this->db->lastInsertId();
+        //retorno numero, porque lastInsertId() siempre retorna 0 porque no es autoincremental
+        return $numero;
     }
 
     public function delete($numero)

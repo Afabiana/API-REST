@@ -40,13 +40,13 @@ class StickerApiController{
 
     public function addSticker($params = null) {
         $sticker = $this->getData();
-
+        var_dump($sticker->numero);
         if(empty($sticker->numero)||empty($sticker->nombre)||empty($sticker->apellido)||empty($sticker->id_pais)){
             $this->view->response("Complete los datos", 400);
         }else{ 
             $numero = $this->model->insert($sticker->numero,$sticker->nombre,$sticker->apellido,$sticker->id_pais); //insert devuelve id
             $sticker= $this->model->getById($numero);
-            $this->view->response("La figurita numero $numero se agregó con exito", 201);
+            $this->view->response("La figurita numero $numero se agrego con exito", 201);
         }
     }
 
