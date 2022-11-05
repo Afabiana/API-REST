@@ -11,7 +11,7 @@ class StickerApiController{
     public function __construct()
     {
         $this->model= new StickerModel();
-        $this->view= new StickerView();
+        $this->view= new ApiView();
 
         //lee el body del request
         $this->data= file_get_contents("php://input");
