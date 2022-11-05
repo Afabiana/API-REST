@@ -1,6 +1,6 @@
 <?php
 require_once './app/models/sticker.model.php';
-require_once './app/view/sticker.view.php';
+require_once './app/views/api.view.php';
 
 class StickerApiController{
     private $model;
