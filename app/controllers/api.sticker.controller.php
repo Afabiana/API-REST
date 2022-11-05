@@ -86,7 +86,7 @@ class StickerApiController{
             $sort = 'numero';
         }
         if($order == null){
-            //por defecto si sort es null las voy a ordenar por numero/id
+            //por defecto si order es null va a tener un orden ascendente
             $order = 'asc';
         }
 
