@@ -80,8 +80,10 @@ class StickerApiController{
         if($sticker){
             $this->model->update($id, $data->nombre, $data->apellido,$data->id_pais);
             $updtSticker = $this->model->getById($id);
-            $this->view->response($updtSticker);
-        }
+        $this->view->response("La figurita $id se modifico con exito:"/*.$updtSticker*/);
+        //podria armar el json como string y mandarlo todo como un mismo texto
+        }else
+            $this->view->response("La figurita=$id no existe",404);
     }
 
     private function getOrdered($sort, $order){
