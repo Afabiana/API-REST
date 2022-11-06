@@ -8,18 +8,16 @@ function base64url_encode($data) {
 }
 
 class AuthApiController{
-    private $model;
+    //private $model;
     private $view;
-
-    private $data;
+    private $authHelper;
 
     public function __construct()
     {
         //$this->model= new StickerModel();
         $this->view= new ApiView();
+        $this->authHelper= new AuthApiHelper();
 
-        //lee el body del request
-        $this->data= file_get_contents("php://input");
     }
 
     private function getData(){
@@ -32,4 +30,46 @@ class AuthApiController{
         //devolver un token
 
     }*/
+
+    public function getToken($params = null) {
+        // Obtener "Basic base64(user:pass)
+        $basic = $this->authHelper->getAuthHeader();
+        
+        if(empty($basic)){
+            $this->view->response('No autorizado', 401);
+            return;
+        }
+        $basic = explode(" ",$basic); // ["Basic" "base64(user:pass)"]
+        if($basic[0]!="Basic"){
+            $this->view->response('La autenticación debe ser Basic', 401);
+            return;
+        }
+
+        //validar usuario:contraseña
+        $userpass = base64_decode($basic[1]); // user:pass
+        $userpass = explode(":", $userpass);
+        $user = $userpass[0];
+        $pass = $userpass[1];
+        if($user == "Fabi" && $pass == "web"){
+            //  crear un token
+            $header = array(
+                'alg' => 'HS256',
+                'typ' => 'JWT'
+            );
+            $payload = array(
+                'id' => 1,
+                'name' => "Fabi",
+                'exp' => time()+3600
+            );
+            //en json_encode lo paso de json a string y despues a ese string lo codifico en base64
+            $header = base64url_encode(json_encode($header));
+            $payload = base64url_encode(json_encode($payload));
+            $signature = hash_hmac('SHA256', "$header.$payload", "Clave1234", true);
+            $signature = base64url_encode($signature);
+            $token = "$header.$payload.$signature";
+             $this->view->response($token);
+        }else{
+            $this->view->response('No autorizado', 401);
+        }
+    }
 }

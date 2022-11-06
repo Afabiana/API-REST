@@ -24,7 +24,7 @@ class StickerApiController{
     public function getStickers($params = null){
 
         if(empty($_GET['sort'])&&empty($_GET['order'])){
-            //si no recibo parametros de ordenamiento por post muestro la lista normalmente
+            //si no recibo parametros de ordenamiento por get muestro la lista normalmente
             $stickers= $this->model->getAll();
             $this->view->response($stickers);
 

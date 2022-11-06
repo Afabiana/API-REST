@@ -5,6 +5,7 @@ class AuthApiHelper{
     public function getToken(){
         //Basic base64(user:pass)
         $auth = $this->getAuthHeader(); // Bearer header.payload.signature
+        var_dump($auth);
         $auth = explode(" ", $auth);
         if($auth[0]!="Bearer" || count($auth) != 2){
             return array();
