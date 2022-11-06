@@ -22,11 +22,19 @@ class StickerApiController{
     }
 
     public function getStickers($params = null){
-        $stickers= $this->model->getAll();
-        $this->view->response($stickers);       
+
+        if(empty($_GET['sort'])&&empty($_GET['order'])){
+            //si no recibo parametros de ordenamiento por post muestro la lista normalmente
+            $stickers= $this->model->getAll();
+            $this->view->response($stickers);
+
+        }else{
+            $this->getOrdered();
+        }     
     }
 
     public function getSticker($params = null){
+        var_dump($params);
         //traigo el id del arreglo de params
         $id = $params[':ID'];
         $sticker=$this->model->getById($id);
@@ -40,10 +48,11 @@ class StickerApiController{
 
     public function addSticker($params = null) {
         $sticker = $this->getData();
-        var_dump($sticker->numero);
+        var_dump($params);
         if(empty($sticker->numero)||empty($sticker->nombre)||empty($sticker->apellido)||empty($sticker->id_pais)){
             $this->view->response("Complete los datos", 400);
         }else{ 
+            //podria hacer q no devuelve el id, y en el string para la vista hacer sticker->numero
             $numero = $this->model->insert($sticker->numero,$sticker->nombre,$sticker->apellido,$sticker->id_pais); //insert devuelve id
             $sticker= $this->model->getById($numero);
             $this->view->response("La figurita numero $numero se agrego con exito", 201);
@@ -56,7 +65,8 @@ class StickerApiController{
         $sticker = $this->model->getById($id);
         if($sticker){
             $this->model->delete($id);
-            $this->view->response($sticker);
+            $this->view->response("La figurita=$id fue borrada con exito", $sticker);
+
         } else
             $this->view->response("La figurita=$id no existe",404);
     }
@@ -74,7 +84,7 @@ class StickerApiController{
         }
     }
 
-    public function getOrdered($params = null){
+    private function getOrdered($params = null){
         //VERIFICARRRRR
         //sort= que criterio quiero usar para que se ordenen
         $sort = $_GET['sort']; 

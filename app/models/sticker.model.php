@@ -42,7 +42,7 @@ class StickerModel{
     }
 
     public function order($order,$sort){
-        $query = $this->db->prepare("SELECT * FROM figuritar ORDER BY '$sort' $order");
+        $query = $this->db->prepare("SELECT * FROM figuritas ORDER BY '$sort' $order");
         $query->execute();
         $ordered = $query->fetchAll(PDO::FETCH_OBJ);
         return $ordered;
