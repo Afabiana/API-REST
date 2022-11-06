@@ -29,7 +29,7 @@ class StickerApiController{
             $this->view->response($stickers);
 
         }else{
-            $this->getOrdered();
+            $this->getOrdered($_GET['sort'], $_GET['order']);
         }     
     }
 
@@ -84,12 +84,13 @@ class StickerApiController{
         }
     }
 
-    private function getOrdered($params = null){
+    private function getOrdered($sort, $order){
+        
         //VERIFICARRRRR
         //sort= que criterio quiero usar para que se ordenen
-        $sort = $_GET['sort']; 
+        //$sort = $_GET['sort']; 
         //en order va a venir si es desc o asc
-        $order = $_GET['order']; 
+        //$order = $_GET['order']; 
 
         if($sort == null){
             //por defecto si sort es null las voy a ordenar por numero/id
