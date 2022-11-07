@@ -23,7 +23,7 @@ class AuthApiHelper{
         $payload = json_decode(base64_decode($payload));
         if(!isset($payload->exp) || $payload->exp<time())
             return array();
-        
+            
         return $payload;
     }
 

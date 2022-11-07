@@ -1,6 +1,6 @@
 <?php
 require_once './app/views/api.view.php';
-require_once './app/models/sticker.model.php';
+require_once './app/models/user.model.php';
 require_once './app/helpers/auth-api.helper.php';
 
 function base64url_encode($data) {
@@ -8,15 +8,16 @@ function base64url_encode($data) {
 }
 
 class AuthApiController{
-    //private $model;
+    private $model;
     private $view;
     private $authHelper;
 
     public function __construct()
     {
-        //$this->model= new StickerModel();
+        
         $this->view= new ApiView();
         $this->authHelper= new AuthApiHelper();
+        $this->model= new UserModel();
 
     }
 
@@ -50,7 +51,8 @@ class AuthApiController{
         $userpass = explode(":", $userpass);
         $user = $userpass[0];
         $pass = $userpass[1];
-        if($user == "Fabi" && $pass == "web"){
+        $usuario=$this->model->getUserByEmail($user);
+        if($usuario && password_verify($pass, $usuario->password)){
             //  crear un token
             $header = array(
                 'alg' => 'HS256',
