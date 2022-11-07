@@ -47,4 +47,12 @@ class StickerModel{
         $ordered = $query->fetchAll(PDO::FETCH_OBJ);
         return $ordered;
     }
+
+    public function getColumnsNames(){
+        $query = $this->db->prepare("SELECT COLUMN_NAME from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = 'figuritas'");
+        $query->execute();
+        $columns= $query->fetchAll(PDO::FETCH_OBJ);
+        //var_dump($columns);
+        return $columns;
+    }
 }

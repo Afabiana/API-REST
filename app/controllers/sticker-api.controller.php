@@ -27,12 +27,15 @@ class StickerApiController{
             //si no recibo parametros de ordenamiento por get muestro la lista normalmente
             $stickers= $this->model->getAll();
             $this->view->response($stickers);
-
         }else{
             //verificar que sort sea una columna que existe y q order sea asc o desc
-            //preguntar si ya con eso basta para evitar inyeccion sql
-            $this->getOrdered($_GET['sort'], $_GET['order']);
-        }     
+            $order=$_GET['order'];
+            $columns=$this->getTableColumns();
+            //var_dump($columns);
+            if(($order=="asc"||$order=="desc")&&in_array($_GET['sort'], $columns)){
+                $this->getOrdered($_GET['sort'], $_GET['order']);
+            }   
+        }
     }
 
     public function getSticker($params = null){
@@ -108,5 +111,17 @@ class StickerApiController{
         //del model me traigo la lista de figuritas ORDENADAS
         $ordered= $this->model->order($order,$sort);
         $this->view->response($ordered);
+    }
+
+    private function getTableColumns(){
+        //traigo el nombre de las columnas
+        $columns=$this->model->getColumnsNames();
+        $result=[];
+        foreach($columns as $column){
+            $value=$column->COLUMN_NAME;
+            //el nombre de cada columna lo agrego a un array
+            array_push($result,$value);
+        }
+        return $result;
     }
 }
