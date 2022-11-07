@@ -29,6 +29,8 @@ class StickerApiController{
             $this->view->response($stickers);
 
         }else{
+            //verificar que sort sea una columna que existe y q order sea asc o desc
+            //preguntar si ya con eso basta para evitar inyeccion sql
             $this->getOrdered($_GET['sort'], $_GET['order']);
         }     
     }
