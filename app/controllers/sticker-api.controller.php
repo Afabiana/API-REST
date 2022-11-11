@@ -5,16 +5,15 @@ require_once './app/views/api.view.php';
 class StickerApiController{
     private $model;
     private $view;
-
     private $data;
+    private $authhelper;
 
     public function __construct()
     {
         $this->model= new StickerModel();
         $this->view= new ApiView();
-
-        //lee el body del request
         $this->data= file_get_contents("php://input");
+        $this->authhelper= new AuthApiHelper;
     }
 
     private function getData(){
@@ -22,20 +21,29 @@ class StickerApiController{
     }
 
     public function getStickers($params = null){
-
-        if(empty($_GET['sort'])&&empty($_GET['order'])){
+        $sort = 'numero';
+        $order = 'asc';
+        if(isset($_GET['filter'])&&!empty($_GET['filter'])){
+            $filter=preg_split('/[=|&|?]/', $_GET['filter']);
+            if($this->isColumn($filter[0])){
+                $column=$filter[0];
+            }
+            $value=$filter[1];
+            $stickers= $this->model->getFilteredStickers($column,$value);
+            $this->view->response($stickers);
+        }
+        /*if(empty($_GET['sort'])&&empty($_GET['order'])){
             //si no recibo parametros de ordenamiento por get muestro la lista normalmente
             $stickers= $this->model->getAll();
             $this->view->response($stickers);
-        }else{
-            //verificar que sort sea una columna que existe y q order sea asc o desc
+        }/*else{
             $order=$_GET['order'];
             $columns=$this->getTableColumns();
-            //var_dump($columns);
+            //en este if verifico que sort sea una de las columnas
             if(($order=="asc"||$order=="desc")&&in_array($_GET['sort'], $columns)){
                 $this->getOrdered($_GET['sort'], $_GET['order']);
             }   
-        }
+        }*/
     }
 
     public function getSticker($params = null){
@@ -52,6 +60,12 @@ class StickerApiController{
     }
 
     public function addSticker($params = null) {
+        //pido token para accionar
+        if(!$this->authhelper->isLoggedIn()){
+            $this->view->response("No estas logeado", 401);
+            return;
+        }
+
         $sticker = $this->getData();
         var_dump($params);
         if(empty($sticker->numero)||empty($sticker->nombre)||empty($sticker->apellido)||empty($sticker->id_pais)){
@@ -59,7 +73,7 @@ class StickerApiController{
         }else{ 
             //podria hacer q no devuelve el id, y en el string para la vista hacer sticker->numero
             $numero = $this->model->insert($sticker->numero,$sticker->nombre,$sticker->apellido,$sticker->id_pais); //insert devuelve id
-            $sticker= $this->model->getById($numero);
+            
             $this->view->response("La figurita numero $numero se agrego con exito", 201);
         }
     }
@@ -77,6 +91,15 @@ class StickerApiController{
     }
 
     public function updateSticker($params = null){
+        
+        //pido token para accionar
+        if(!$this->authhelper->isLoggedIn()){
+            var_dump("no esta logueado");
+            $this->view->response("No estas logeado", 401);
+            
+            return;
+        }
+
         //tomo id de params y me traigo la data de la figurita
         $id= $params[':ID'];
         $data = $this->getData();
@@ -84,36 +107,19 @@ class StickerApiController{
 
         if($sticker){
             $this->model->update($id, $data->nombre, $data->apellido,$data->id_pais);
-            $updtSticker = $this->model->getById($id);
-        $this->view->response("La figurita $id se modifico con exito:"/*.$updtSticker*/);
+        $this->view->response("La figurita $id se modifico con exito:");
         //podria armar el json como string y mandarlo todo como un mismo texto
         }else
             $this->view->response("La figurita=$id no existe",404);
     }
 
     private function getOrdered($sort, $order){
-        
-        //VERIFICARRRRR
-        //sort= que criterio quiero usar para que se ordenen
-        //$sort = $_GET['sort']; 
-        //en order va a venir si es desc o asc
-        //$order = $_GET['order']; 
-
-        if($sort == null){
-            //por defecto si sort es null las voy a ordenar por numero/id
-            $sort = 'numero';
-        }
-        if($order == null){
-            //por defecto si order es null va a tener un orden ascendente
-            $order = 'asc';
-        }
-
         //del model me traigo la lista de figuritas ORDENADAS
         $ordered= $this->model->order($order,$sort);
         $this->view->response($ordered);
     }
 
-    private function getTableColumns(){
+    private function isColumn($newcol){
         //traigo el nombre de las columnas
         $columns=$this->model->getColumnsNames();
         $result=[];
@@ -122,6 +128,6 @@ class StickerApiController{
             //el nombre de cada columna lo agrego a un array
             array_push($result,$value);
         }
-        return $result;
+        return in_array($newcol, $result);
     }
 }

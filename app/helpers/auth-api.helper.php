@@ -27,6 +27,14 @@ class AuthApiHelper{
         return $payload;
     }
 
+    function isLoggedIn(){
+        $payload = $this->getToken();
+        if(isset($payload->id))
+            return true;
+        else
+            return false;
+    }
+    
     public function getAuthHeader(){
         $header = "";
         //si es engine next no nos agrega el reditect. Nos deja el http auth como viene

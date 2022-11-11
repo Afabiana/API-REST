@@ -33,6 +33,7 @@ class AuthApiController{
     }*/
 
     public function getToken($params = null) {
+        var_dump( "entro aca a validar");
         // Obtener "Basic base64(user:pass)
         $basic = $this->authHelper->getAuthHeader();
         var_dump($basic);
@@ -67,6 +68,7 @@ class AuthApiController{
             $header = base64url_encode(json_encode($header));
             $payload = base64url_encode(json_encode($payload));
             //donde puedo guardar la key y traermela???
+            //el payload siempre va a ser lo mismo, o lo puedo cambiar segun los datos del usuario
             $signature = hash_hmac('SHA256', "$header.$payload", "Clave1234", true);
             $signature = base64url_encode($signature);
             $token = "$header.$payload.$signature";

@@ -52,7 +52,22 @@ class StickerModel{
         $query = $this->db->prepare("SELECT COLUMN_NAME from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = 'figuritas'");
         $query->execute();
         $columns= $query->fetchAll(PDO::FETCH_OBJ);
-        //var_dump($columns);
         return $columns;
+    }
+
+    public function getPagination($page,$limit){
+        $off = ($limit * $page) - $limit;
+        $query = $this->db->prepare("SELECT nombre.*,apellido.*, pais.* FROM figuritas JOIN selecciones ON stickers.id_pais = selecciones.id_pais ORDER BY stickers.numero ASC LIMIT $limit OFFSET $off");
+        $query->execute();
+        $players = $query->fetchAll(PDO::FETCH_OBJ);
+        return $players;
+    }
+
+    public function getFilteredStickers($column,$value)
+    {
+        $query=$this->db->prepare("SELECT * FROM figuritas WHERE $column=?");
+        $query->execute([$value]);
+        $stickers=$query->fetchAll(PDO::FETCH_OBJ);
+        return $stickers;
     }
 }
