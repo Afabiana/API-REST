@@ -55,9 +55,8 @@ class StickerModel{
         return $columns;
     }
 
-    public function getPagination($page,$limit){
-        $off = ($limit * $page) - $limit;
-        $query = $this->db->prepare("SELECT nombre.*,apellido.*, pais.* FROM figuritas JOIN selecciones ON stickers.id_pais = selecciones.id_pais ORDER BY stickers.numero ASC LIMIT $limit OFFSET $off");
+    public function getPagination($start,$limit){
+        $query = $this->db->prepare("SELECT * FROM figuritas ORDER BY numero LIMIT $limit OFFSET $start");
         $query->execute();
         $players = $query->fetchAll(PDO::FETCH_OBJ);
         return $players;
@@ -65,7 +64,7 @@ class StickerModel{
 
     public function getFilteredStickers($column,$value)
     {
-        $query=$this->db->prepare("SELECT * FROM figuritas WHERE $column=?");
+        $query=$this->db->prepare("SELECT * FROM figuritas WHERE $column>=?");
         $query->execute([$value]);
         $stickers=$query->fetchAll(PDO::FETCH_OBJ);
         return $stickers;
@@ -74,6 +73,20 @@ class StickerModel{
     public function getStickersByUser($column, $user, $value){
         $query=$this->db->prepare("SELECT * FROM figuritas a INNER JOIN status b ON a.numero=b.fk_figurita WHERE $column=? AND fk_user=?");
         $query->execute([$value, $user]);
+        $stickers=$query->fetchAll(PDO::FETCH_OBJ);
+        return $stickers;
+    }
+
+    public function getTableSize(){
+        $query = $this->db->prepare("SELECT count(*)  as count FROM figuritas");
+        $query->execute([]);
+        $size = $query->fetch(PDO::FETCH_OBJ);
+        return $size->count;
+    }
+
+    public function getOrderedFilteredAndPaginated($column,$sort,$order,$limit,$start,$value){
+        $query=$this->db->prepare("SELECT * FROM figuritas a WHERE $column>=? ORDER BY $sort $order LIMIT $limit OFFSET $start");
+        $query->execute([$value]);
         $stickers=$query->fetchAll(PDO::FETCH_OBJ);
         return $stickers;
     }

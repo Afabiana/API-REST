@@ -21,29 +21,49 @@ class StickerApiController{
     }
 
     public function getStickers($params = null){
-        $sort = 'numero';
-        $order = 'asc';
-        if(isset($_GET['filter'])&&!empty($_GET['filter'])){
-            $filter=preg_split('/[=|&|?]/', $_GET['filter']);
-            if($this->isColumn($filter[0])){
-                $column=$filter[0];
-            }
-            $value=$filter[1];
-            $stickers= $this->model->getFilteredStickers($column,$value);
-            $this->view->response($stickers);
-        }
-        /*if(empty($_GET['sort'])&&empty($_GET['order'])){
-            //si no recibo parametros de ordenamiento por get muestro la lista normalmente
-            $stickers= $this->model->getAll();
-            $this->view->response($stickers);
-        }/*else{
+        //declaro valores por default
+        $page=1;
+        $sort="numero";
+        $filter="numero=0";
+        $page=1;
+        $order="asc";
+        $limit=$this->model->getTableSize();//esta funcion retorna el total de filas que tengo
+        
+        if(isset($_GET['sort'])&&!empty($_GET['sort'])&&$this->isColumn($_GET['sort']))
+            $sort=$_GET['sort'];
+        if(isset($_GET['filter'])&&!empty($_GET['filter']))
+            $filter=$_GET['filter'];
+        if(isset($_GET['page'])&&!empty($_GET['page'])&&is_numeric($_GET['page']))
+            $page=$_GET['page'];
+        if(isset($_GET['limit'])&&!empty($_GET['limit'])&&is_numeric($_GET['limit']))
+            $limit=$_GET['limit']; 
+        if(isset($_GET['order'])&&!empty($_GET['order'])&&($_GET['order']!="asc"||$_GET['order']!="desc"))
             $order=$_GET['order'];
-            $columns=$this->getTableColumns();
-            //en este if verifico que sort sea una de las columnas
-            if(($order=="asc"||$order=="desc")&&in_array($_GET['sort'], $columns)){
-                $this->getOrdered($_GET['sort'], $_GET['order']);
-            }   
-        }*/
+
+        $this->paginate($limit, $page, $order, $sort, $filter);
+    }
+
+    public function paginate($limit, $page, $order, $sort, $filter){
+
+        //hago un explode del filtro. Tengo nombre columna por un lado, y valor por el otro
+        $filter=preg_split('/[=|&|?]/', $filter);
+        if($this->isColumn($filter[0])){
+            $column=$filter[0];
+            $value=$filter[1];
+        }else{
+            $this->view->response("Esa columna no existe", 404);
+        }
+        //evaluo variable page y limit para evitar inyeccion sql
+        //calcular de manera que se pueda mostrar que ese numero de pagina no existe
+        if (is_numeric($page) && (is_numeric($limit))){
+            $start = ($page -1) * $limit;
+            $stickers=$this->model->getOrderedFilteredAndPaginated($column,$sort,$order,$limit,$start,$value);
+            if($stickers){
+                $this->view->response($stickers);
+            }
+        }else{
+            $this->view->response("Parametros incorrectos. Intentelo de nuevo", 404);
+        }
     }
 
     public function getStatusStickersByUser($column, $user){
