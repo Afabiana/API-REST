@@ -70,4 +70,11 @@ class StickerModel{
         $stickers=$query->fetchAll(PDO::FETCH_OBJ);
         return $stickers;
     }
+
+    public function getStickersByUser($column, $user, $value){
+        $query=$this->db->prepare("SELECT * FROM figuritas a INNER JOIN status b ON a.numero=b.fk_figurita WHERE $column=? AND fk_user=?");
+        $query->execute([$value, $user]);
+        $stickers=$query->fetchAll(PDO::FETCH_OBJ);
+        return $stickers;
+    }
 }

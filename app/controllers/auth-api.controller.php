@@ -32,11 +32,11 @@ class AuthApiController{
 
     }*/
 
+    //a esta funcion entro desde el router
     public function getToken($params = null) {
-        var_dump( "entro aca a validar");
         // Obtener "Basic base64(user:pass)
         $basic = $this->authHelper->getAuthHeader();
-        var_dump($basic);
+        var_dump("controller $basic");
         if(empty($basic)){
             $this->view->response('No autorizado', 401);
             return;
@@ -60,7 +60,7 @@ class AuthApiController{
                 'typ' => 'JWT'
             );
             $payload = array(
-                'id' => 1,
+                'id' => -1,
                 'name' => "Fabi",
                 'exp' => time()+3600
             );

@@ -1,7 +1,7 @@
 <?php
 require_once './app/models/sticker.model.php';
 require_once './app/views/api.view.php';
-
+require_once './app/helpers/auth-api.helper.php';
 class StickerApiController{
     private $model;
     private $view;
@@ -12,8 +12,8 @@ class StickerApiController{
     {
         $this->model= new StickerModel();
         $this->view= new ApiView();
-        $this->data= file_get_contents("php://input");
         $this->authhelper= new AuthApiHelper;
+        $this->data= file_get_contents("php://input");
     }
 
     private function getData(){
@@ -46,6 +46,15 @@ class StickerApiController{
         }*/
     }
 
+    public function getStatusStickersByUser($column, $user){
+        $column=1;
+        $value=0;
+        $stickers=$this->model->getStickersByUser($column, $value, $user);
+        if($stickers)
+            $this->view->response($stickers);
+        else 
+            $this->view->response("No hay figuritas con ese status", 404);
+    }
     public function getSticker($params = null){
         var_dump($params);
         //traigo el id del arreglo de params
@@ -94,9 +103,7 @@ class StickerApiController{
         
         //pido token para accionar
         if(!$this->authhelper->isLoggedIn()){
-            var_dump("no esta logueado");
             $this->view->response("No estas logeado", 401);
-            
             return;
         }
 

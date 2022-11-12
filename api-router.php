@@ -13,6 +13,7 @@ $router->addRoute('stickers/:ID', 'GET', 'StickerApiController', 'getSticker');
 $router->addRoute('stickers/:ID', 'DELETE', 'StickerApiController', 'deleteSticker');
 $router->addRoute('stickers', 'POST', 'StickerApiController', 'addSticker'); 
 $router->addRoute('stickers/:ID', 'PUT','StickerApiController', 'updateSticker');
+
 $router->addRoute("auth/token", 'GET', 'AuthApiController', 'getToken');
 // ejecuta la ruta (sea cual sea)
 $router->route($_GET["resource"], $_SERVER['REQUEST_METHOD']);

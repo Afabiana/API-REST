@@ -5,12 +5,12 @@ class AuthApiHelper{
     public function getToken(){
         //Basic base64(user:pass)
         $auth = $this->getAuthHeader(); // Bearer header.payload.signature
-        var_dump($auth);
+        var_dump($auth); //Basic YnVlbmFzdGFyZGVzOnBpZWRhZHBvcmZh
         $auth = explode(" ", $auth);
         if($auth[0]!="Bearer" || count($auth) != 2){
             return array();
         }
-        $token = explode(".", $auth[1]);
+        $token = explode(".", $auth[1]); //arraycon buenastardes y password
         $header = $token[0];
         $payload = $token[1];
         $signature = $token[2];
@@ -19,7 +19,7 @@ class AuthApiHelper{
         $new_signature = base64url_encode($new_signature);
         if($signature!=$new_signature)
             return array();
-
+        
         $payload = json_decode(base64_decode($payload));
         if(!isset($payload->exp) || $payload->exp<time())
             return array();
@@ -29,6 +29,7 @@ class AuthApiHelper{
 
     function isLoggedIn(){
         $payload = $this->getToken();
+        var_dump($payload); //payload llega vacio
         if(isset($payload->id))
             return true;
         else
