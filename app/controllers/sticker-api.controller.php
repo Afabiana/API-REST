@@ -21,6 +21,7 @@ class StickerApiController{
     }
 
     public function getStickers($params = null){
+        //antes de hacer explode de filter podria ver si el string contains > o = y modificar signo en la consulta
         //declaro valores por default
         $sort="numero";
         $filter="numero=0"; //no hay resultados que respondan a esa busqueda
