@@ -25,7 +25,7 @@ class StickerApiController{
         //antes de hacer explode de filter podria ver si el string contains > o = y modificar signo en la consulta
         //declaro valores por default
         $sort="numero";
-        $filter="numero=0"; //no hay resultados que respondan a esa busqueda
+        $filter="numero>0"; //no hay resultados que respondan a esa busqueda
         $page=1;
         $order="asc";
         $limit=$this->model->getTableSize();//esta funcion retorna el total de filas que tengo
@@ -44,30 +44,34 @@ class StickerApiController{
         if(isset($_GET['order'])&&!empty($_GET['order'])&&($_GET['order']=="asc"||$_GET['order']=="desc"))
             $order=$_GET['order'];
 
+        
         $this->paginate($limit, $page, $order, $sort, $filter);
     }
 
     public function paginate($limit, $page, $order, $sort, $filter){
         //hago un explode del filtro. Tengo nombre columna por un lado, y valor por el otro
-        $filter=preg_split('/[=|&|?]/', $filter);
-        if($this->isColumn($filter[0])){
-            $column=$filter[0];
-            $value=$filter[1];
+        $filters=preg_split('/[=|>]/', $filter);
+        if($this->isColumn($filters[0])){
+            $column=$filters[0];
+            $value=$filters[1];
         }else{
             $this->view->response("Esa columna no existe", 404);
             die();
         }
         //evaluo variable page y limit para evitar inyeccion sql
         //calcular de manera que se pueda mostrar que ese numero de pagina no existe
-        if (is_numeric($page) && (is_numeric($limit))){
-            $start = ($page -1) * $limit;
+        //calculo start. Ya chequee antes que los datos sean numericos
+        $start = ($page -1) * $limit;
+        if (str_contains($filter, '='))
+            $stickers=$this->model->getEquals($column,$sort,$order,$limit,$start,$value);
+        else
             $stickers=$this->model->getOrderedFilteredAndPaginated($column,$sort,$order,$limit,$start,$value);
-            if($stickers){
-                $this->view->response($stickers);
-            }
-        }else{
-            $this->view->response("Parametros incorrectos. Intentelo de nuevo", 404);
-        }
+
+        if($stickers)
+            $this->view->response($stickers);
+        else
+            $this->view->response("No se encontraron resultados para esa peticion", 404);
+        
     }
 
     public function getStatusStickersByUser($column, $user){
@@ -121,7 +125,7 @@ class StickerApiController{
             $this->view->response("La figurita=$id fue borrada con exito", $sticker);
 
         } else
-            $this->view->response("La figurita=$id no existe",404);
+            $this->view->response("La figurita $id no existe",404);
     }
 
     public function updateSticker($params = null){
@@ -142,7 +146,7 @@ class StickerApiController{
             $this->view->response("La figurita $id se modifico con exito:");
         //podria armar el json como string y mandarlo todo como un mismo texto
         }else
-            $this->view->response("La figurita=$id no existe",404);
+            $this->view->response("La figurita $id no existe",404);
     }
 
     private function isColumn($newcol){
