@@ -64,14 +64,9 @@ class StickerModel{
     }
 
     public function getOrderedFilteredAndPaginated($column,$sort,$order,$limit,$start,$value){
-        $query=$this->db->prepare("SELECT * FROM figuritas a WHERE $column>=? ORDER BY $sort $order LIMIT $limit OFFSET $start");
-        $query->execute([$value]);
-        $stickers=$query->fetchAll(PDO::FETCH_OBJ);
-        return $stickers;
-    }
-
-    public function getEquals($column,$sort,$order,$limit,$start,$value){
+        var_dump($column);
         $query=$this->db->prepare("SELECT * FROM figuritas a WHERE $column=? ORDER BY $sort $order LIMIT $limit OFFSET $start");
+        var_dump($query);
         $query->execute([$value]);
         $stickers=$query->fetchAll(PDO::FETCH_OBJ);
         return $stickers;

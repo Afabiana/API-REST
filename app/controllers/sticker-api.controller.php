@@ -47,16 +47,18 @@ class StickerApiController{
         
         
 
-        if($_GET['user']){
+        
+        if(isset($_GET['user'])){
             $this->getStatusStickersByUser($_GET['user'],$limit, $page, $order, $sort, $filter);
-        }else
+        }else{
             $this->getPublicResults($limit, $page, $order, $sort, $filter);
+        }
                   
     }
 
     public function getPublicResults($limit, $page, $order, $sort, $filter){
         //hago un explode del filtro. Tengo nombre columna por un lado, y valor por el otro
-        $filters=preg_split('/[=|>]/', $filter);
+        $filters=preg_split('/[=|>|<]/', $filter);
         if($this->isColumn($filters[0])){
             $column=$filters[0];
             $value=$filters[1];
@@ -64,14 +66,16 @@ class StickerApiController{
             $this->view->response("Esa columna no existe", 404);
             die();
         }
+
+        if(str_contains($filter, '>')||str_contains($filter, '<')){
+            $column=substr($filter, 0, strlen($column)+1);
+        }
+            
         //evaluo variable page y limit para evitar inyeccion sql
         //calcular de manera que se pueda mostrar que ese numero de pagina no existe
         //calculo start. Ya chequee antes que los datos sean numericos
         $start = ($page -1) * $limit;
-        if (str_contains($filter, '='))
-            $stickers=$this->model->getEquals($column,$sort,$order,$limit,$start,$value);
-        else
-            $stickers=$this->model->getOrderedFilteredAndPaginated($column,$sort,$order,$limit,$start,$value);
+        $stickers=$this->model->getOrderedFilteredAndPaginated($column,$sort,$order,$limit,$start,$value);
 
         if($stickers)
             $this->view->response($stickers);
