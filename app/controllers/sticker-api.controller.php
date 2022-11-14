@@ -45,10 +45,16 @@ class StickerApiController{
             $order=$_GET['order'];
 
         
-        $this->paginate($limit, $page, $order, $sort, $filter);
+        
+
+        if($_GET['user']){
+            $this->getStatusStickersByUser($_GET['user'],$limit, $page, $order, $sort, $filter);
+        }else
+            $this->getPublicResults($limit, $page, $order, $sort, $filter);
+                  
     }
 
-    public function paginate($limit, $page, $order, $sort, $filter){
+    public function getPublicResults($limit, $page, $order, $sort, $filter){
         //hago un explode del filtro. Tengo nombre columna por un lado, y valor por el otro
         $filters=preg_split('/[=|>]/', $filter);
         if($this->isColumn($filters[0])){
@@ -74,10 +80,17 @@ class StickerApiController{
         
     }
 
-    public function getStatusStickersByUser($column, $user){
-        $column=1;
-        $value=0;
-        $stickers=$this->model->getStickersByUser($column, $value, $user);
+    //esto lo dejo en una funcion porque es una funcion que podria reutilizar
+    public function getStatusStickersByUser($user,$limit, $page, $order, $sort, $filter){
+        var_dump($filter);
+        $filters=preg_split('/[=|>]/', $filter);
+        $column=$filters[0];
+        $value=$filters[1];
+        //nomas le estoy pasando el filter completo para probar se que no estoy evitando inyeccion SQL
+        //falta metodo que me retorne las columnas de la tabla status
+        //falta metodo que me filte por igual, porque el que tengo filtra por >=
+        $start = ($page -1) * $limit;
+    $stickers=$this->model->getStickersByUser($user,$filter/*$column*/,$sort,$order,$limit,$start,/*$value*/);
 
         if($stickers)
             $this->view->response($stickers);
@@ -151,8 +164,9 @@ class StickerApiController{
 
     private function isColumn($newcol){
         //traigo el nombre de las columnas
-        $columns=$this->model->getColumnsNames();
         $result=[];
+        $columns=$this->model->getColumnsNames();
+        
         foreach($columns as $column){
             $value=$column->COLUMN_NAME;
             //el nombre de cada columna lo agrego a un array

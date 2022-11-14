@@ -41,13 +41,6 @@ class StickerModel{
         $query->execute([$nombre, $apellido, $id_pais, $id]);
     }
 
-    public function order($order,$sort){
-        $query = $this->db->prepare("SELECT * FROM figuritas ORDER BY $sort $order");
-        $query->execute();
-        $ordered = $query->fetchAll(PDO::FETCH_OBJ);
-        return $ordered;
-    }
-
     public function getColumnsNames(){
         $query = $this->db->prepare("SELECT COLUMN_NAME from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = 'figuritas'");
         $query->execute();
@@ -55,24 +48,10 @@ class StickerModel{
         return $columns;
     }
 
-    public function getPagination($start,$limit){
-        $query = $this->db->prepare("SELECT * FROM figuritas ORDER BY numero LIMIT $limit OFFSET $start");
-        $query->execute();
-        $players = $query->fetchAll(PDO::FETCH_OBJ);
-        return $players;
-    }
-
-    public function getFilteredStickers($column,$value)
-    {
-        $query=$this->db->prepare("SELECT * FROM figuritas WHERE $column>=?");
-        $query->execute([$value]);
-        $stickers=$query->fetchAll(PDO::FETCH_OBJ);
-        return $stickers;
-    }
-
-    public function getStickersByUser($column, $user, $value){
-        $query=$this->db->prepare("SELECT * FROM figuritas a INNER JOIN status b ON a.numero=b.fk_figurita WHERE $column=? AND fk_user=?");
-        $query->execute([$value, $user]);
+    public function getStickersByUser($user,$filter/*$column*/,$sort,$order,$limit,$start,/*$value*/){
+                                ///SELECT * FROM figuritas a INNER JOIN status b ON a.numero=b.fk_figurita WHERE faltante=1 AND fk_user=4 ORDER BY numero LIMIT 10 OFFSET 0;
+        $query=$this->db->prepare("SELECT a.nombre,a.apellido,a.numero FROM figuritas a INNER JOIN status b ON a.numero=b.fk_figurita WHERE $filter AND fk_user=? ORDER BY $sort $order LIMIT $limit OFFSET $start");
+        $query->execute([/*$value,*/$user]);
         $stickers=$query->fetchAll(PDO::FETCH_OBJ);
         return $stickers;
     }
