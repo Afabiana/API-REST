@@ -48,10 +48,10 @@ class StickerModel{
         return $columns;
     }
 
-    public function getStickersByUser($user,$filter/*$column*/,$sort,$order,$limit,$start,/*$value*/){
-                                ///SELECT * FROM figuritas a INNER JOIN status b ON a.numero=b.fk_figurita WHERE faltante=1 AND fk_user=4 ORDER BY numero LIMIT 10 OFFSET 0;
-        $query=$this->db->prepare("SELECT a.nombre,a.apellido,a.numero FROM figuritas a INNER JOIN status b ON a.numero=b.fk_figurita WHERE $filter AND fk_user=? ORDER BY $sort $order LIMIT $limit OFFSET $start");
-        $query->execute([/*$value,*/$user]);
+    public function getStickersByUser($user,$column,$sort,$order,$limit,$start,$value){
+        $query=$this->db->prepare("SELECT a.nombre,a.apellido,a.numero FROM figuritas a INNER JOIN status b ON a.numero=b.fk_figurita WHERE $column=? AND fk_user=? ORDER BY $sort $order LIMIT $limit OFFSET $start");
+        var_dump($query);
+        $query->execute([$value,$user]);
         $stickers=$query->fetchAll(PDO::FETCH_OBJ);
         return $stickers;
     }
@@ -71,5 +71,6 @@ class StickerModel{
         $stickers=$query->fetchAll(PDO::FETCH_OBJ);
         return $stickers;
     }
+
 
 }

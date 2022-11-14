@@ -22,16 +22,14 @@ class StickerApiController{
 
     public function getStickers($params = null){
         //emprolijar codigo mucho MUY importante
-        //antes de hacer explode de filter podria ver si el string contains > o = y modificar signo en la consulta
         //declaro valores por default
         $sort="numero";
-        $filter="numero>0"; //no hay resultados que respondan a esa busqueda
+        $filter="numero>0"; 
         $page=1;
         $order="asc";
         $limit=$this->model->getTableSize();//esta funcion retorna el total de filas que tengo
         
         //si limit es mayor al numero de los resultados deberia decirlo?
-        //verificar que para cambiar el valor de order, $_GET no esta vacio
         //si recibo parametros por get cambio el valor de las variables
         if(isset($_GET['sort'])&&!empty($_GET['sort'])&&$this->isColumn($_GET['sort']))
             $sort=$_GET['sort'];
@@ -44,12 +42,8 @@ class StickerApiController{
         if(isset($_GET['order'])&&!empty($_GET['order'])&&($_GET['order']=="asc"||$_GET['order']=="desc"))
             $order=$_GET['order'];
 
-        
-        
-
-        
         if(isset($_GET['user'])){
-            $this->getStatusStickersByUser($_GET['user'],$limit, $page, $order, $sort, $filter);
+            $this->getStickersByUser($_GET['user'],$limit, $page, $order, $sort, $filter);
         }else{
             $this->getPublicResults($limit, $page, $order, $sort, $filter);
         }
@@ -64,7 +58,7 @@ class StickerApiController{
             $value=$filters[1];
         }else{
             $this->view->response("Esa columna no existe", 404);
-            die();
+            return;
         }
 
         if(str_contains($filter, '>')||str_contains($filter, '<')){
@@ -85,16 +79,19 @@ class StickerApiController{
     }
 
     //esto lo dejo en una funcion porque es una funcion que podria reutilizar
-    public function getStatusStickersByUser($user,$limit, $page, $order, $sort, $filter){
+    public function getStickersByUser($user,$limit, $page, $order, $sort, $filter){
         var_dump($filter);
         $filters=preg_split('/[=|>]/', $filter);
         $column=$filters[0];
         $value=$filters[1];
-        //nomas le estoy pasando el filter completo para probar se que no estoy evitando inyeccion SQL
         //falta metodo que me retorne las columnas de la tabla status
         //falta metodo que me filte por igual, porque el que tengo filtra por >=
+        if(str_contains($filter, '>')||str_contains($filter, '<')){
+            $column=substr($filter, 0, strlen($column)+1);
+        }
+
         $start = ($page -1) * $limit;
-    $stickers=$this->model->getStickersByUser($user,$filter/*$column*/,$sort,$order,$limit,$start,/*$value*/);
+        $stickers=$this->model->getStickersByUser($user,$column,$sort,$order,$limit,$start,$value);
 
         if($stickers)
             $this->view->response($stickers);
