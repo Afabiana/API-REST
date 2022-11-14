@@ -24,4 +24,4 @@ http://localhost/TPE_webII/api/stickers?sort=columna
 http://localhost/TPE_webII/api/stickers?page=number&limit=number
 
 ## todas las funciones combinadas
-http://localhost/TPE_webII/api/stickers?page=numero&limit=numero&filter=columna=valor&order=asc&sort=nombre
+http://localhost/TPE_webII/api/stickers?page=numero&limit=numero&filter=columna=valor&order=asc&sort=columna
