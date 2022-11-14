@@ -23,5 +23,5 @@ http://localhost/TPE_webII/api/stickers?sort=columna
 ## paginado: paso pagina y limit(cantidad de elementos que quiero mostrar) 
 http://localhost/TPE_webII/api/stickers?page=number&limit=number
 
-##
-http://localhost/TPE_webII/api/stickers?<strong>page</strong>=numero&<strong>limit</strong>=numero&<strong>filter</strong>=columna=valor&<strong>order</strong>=asc&<strong>sort</strong>=nombre
+## todas las funciones combinadas
+http://localhost/TPE_webII/api/stickers?page=numero&limit=numero&filter=columna=valor&order=asc&sort=nombre
