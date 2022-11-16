@@ -22,6 +22,9 @@ http://localhost/TPE_webII/api/stickers?filter=columna>valor
 ## filtrado igual : 
 Se puede filtrar por cualquiera de los campos buscando resultados de igual valor
 http://localhost/TPE_webII/api/stickers?filter=columna=valor
+## filtrado menor o igual :
+Se puede filtrar por cualquiera de los campos buscando resultados de igual o mayor valor
+http://localhost/TPE_webII/api/stickers?filter=columna<valor
 
 ## orden : 
 se puede ordenar ascendente o descendentemente (si no se especifica una columna se ordenaran segun su id(en este caso el numero de figurita))
