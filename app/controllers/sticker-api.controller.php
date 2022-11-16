@@ -61,6 +61,7 @@ class StickerApiController{
             return;
         }
 
+        
         if(str_contains($filter, '>')||str_contains($filter, '<')){
             $column=substr($filter, 0, strlen($column)+1);
         }
@@ -84,7 +85,7 @@ class StickerApiController{
             $this->view->response("No estas logeado", 401);
             return;
         }
-        
+
         //filter=columuna=valor (junto al =, tambien puedo mandar un ">" o "<")
         $filters=preg_split('/[=|>|<]/', $filter);
 
