@@ -30,7 +30,6 @@ class AuthApiController{
     public function getToken($params = null) {
         // Obtener "Basic base64(user:pass)
         $basic = $this->authHelper->getAuthHeader();
-        var_dump("controller $basic");
         if(empty($basic)){
             $this->view->response('No autorizado', 401);
             return;

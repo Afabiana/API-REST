@@ -5,7 +5,6 @@ class AuthApiHelper{
     public function getToken(){
         //Basic base64(user:pass)
         $auth = $this->getAuthHeader(); // Bearer header.payload.signature
-        var_dump($auth); //Basic YnVlbmFzdGFyZGVzOnBpZWRhZHBvcmZh
         $auth = explode(" ", $auth);
         if($auth[0]!="Bearer" || count($auth) != 2){
             return array();
@@ -15,7 +14,7 @@ class AuthApiHelper{
         $payload = $token[1];
         $signature = $token[2];
 
-        $new_signature = hash_hmac('SHA256', "$header.$payload", "Clave1234", true);
+        $new_signature = hash_hmac('SHA256', "$header.$payload", "claveprivada", true);
         $new_signature = base64url_encode($new_signature);
         if($signature!=$new_signature)
             return array();
@@ -23,13 +22,12 @@ class AuthApiHelper{
         $payload = json_decode(base64_decode($payload));
         if(!isset($payload->exp) || $payload->exp<time())
             return array();
-            
+        
         return $payload;
     }
 
     function isLoggedIn(){
         $payload = $this->getToken();
-        var_dump($payload); //payload llega vacio
         if(isset($payload->id))
             return true;
         else
