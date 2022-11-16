@@ -169,7 +169,7 @@ class StickerApiController{
         $sticker= $this->model->getById($id);
 
         if($sticker){
-            $this->model->update($id, $data->nombre, $data->apellido,$data->id_pais);
+            $this->model->update($id, $data->nombre, $data->apellido,$data->fk_pais);
             $this->view->response("La figurita $id se modifico con exito:");
         //podria armar el json como string y mandarlo todo como un mismo texto
         }else
