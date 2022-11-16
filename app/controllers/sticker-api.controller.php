@@ -133,14 +133,19 @@ class StickerApiController{
         }
 
         $sticker = $this->getData();
+        try{
+            if(empty($sticker->numero)||empty($sticker->nombre)||empty($sticker->apellido)||empty($sticker->fk_pais)){
+                $this->view->response("Complete los datos", 400);
+            }else{ 
+                $numero = $this->model->insert($sticker->numero,$sticker->nombre,$sticker->apellido,$sticker->fk_pais); //insert devuelve id
+                
+                $this->view->response("La figurita numero $numero se agrego con exito", 201);
+            }
+        }catch(PDOException $e){
+            $this->view->response("ya existe una figurita con ese numero", 400);
 
-        if(empty($sticker->numero)||empty($sticker->nombre)||empty($sticker->apellido)||empty($sticker->fk_pais)){
-            $this->view->response("Complete los datos", 400);
-        }else{ 
-            $numero = $this->model->insert($sticker->numero,$sticker->nombre,$sticker->apellido,$sticker->fk_pais); //insert devuelve id
-            
-            $this->view->response("La figurita numero $numero se agrego con exito", 201);
         }
+
     }
 
     public function deleteSticker($params = null){
