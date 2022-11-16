@@ -11,27 +11,21 @@ class AuthApiController{
     private $model;
     private $view;
     private $authHelper;
+    private $key;
 
     public function __construct()
     {
-        
-        $this->view= new ApiView();
-        $this->authHelper= new AuthApiHelper();
-        $this->model= new UserModel();
+        $this->key = "claveprivada"; //se entiende que la clave privada deberia ir en archivos de configuracion
+        $this->view = new ApiView();
+        $this->authHelper = new AuthApiHelper();
+        $this->model = new UserModel();
 
     }
 
     private function getData(){
         return json_decode($this->data);
     }
-
-    /*public function getToken(params = null){
-        //verificar el header, que tenga un Basic, usuario y contraseña
-        //chequear con bbdd
-        //devolver un token
-
-    }*/
-
+    
     //a esta funcion entro desde el router
     public function getToken($params = null) {
         // Obtener "Basic base64(user:pass)
@@ -60,16 +54,14 @@ class AuthApiController{
                 'typ' => 'JWT'
             );
             $payload = array(
-                'id' => -1,
-                'name' => "Fabi",
+                'id' => $usuario->id,
+                'name' => $usuario->user,
                 'exp' => time()+3600
             );
             //en json_encode lo paso de json a string y despues a ese string lo codifico en base64
             $header = base64url_encode(json_encode($header));
             $payload = base64url_encode(json_encode($payload));
-            //donde puedo guardar la key y traermela???
-            //el payload siempre va a ser lo mismo, o lo puedo cambiar segun los datos del usuario
-            $signature = hash_hmac('SHA256', "$header.$payload", "Clave1234", true);
+            $signature = hash_hmac('SHA256', "$header.$payload", $this->key, true);
             $signature = base64url_encode($signature);
             $token = "$header.$payload.$signature";
              $this->view->response($token);

@@ -21,7 +21,6 @@ class StickerApiController{
     }
 
     public function getStickers($params = null){
-        //emprolijar codigo mucho MUY importante
         //declaro valores por default
         $sort="numero";
         $filter="numero>0"; 
@@ -29,10 +28,9 @@ class StickerApiController{
         $order="asc";
         $limit=$this->model->getTableSize();//esta funcion retorna el total de filas que tengo
         
-        //si limit es mayor al numero de los resultados deberia decirlo?
+        //total de figus/limit>page ERROR ESA PAGINA NO EXISTE
+
         //si recibo parametros por get cambio el valor de las variables
-        if(isset($_GET['sort'])&&!empty($_GET['sort'])&&$this->isColumn($_GET['sort']))
-            $sort=$_GET['sort'];
         if(isset($_GET['filter'])&&!empty($_GET['filter']))
             $filter=$_GET['filter'];
         if(isset($_GET['page'])&&!empty($_GET['page'])&&is_numeric($_GET['page']))
@@ -41,8 +39,11 @@ class StickerApiController{
             $limit=$_GET['limit']; 
         if(isset($_GET['order'])&&!empty($_GET['order'])&&($_GET['order']=="asc"||$_GET['order']=="desc"))
             $order=$_GET['order'];
-
-        if(isset($_GET['user'])){
+        if(isset($_GET['sort'])&&!empty($_GET['sort']))
+            $sort=$_GET['sort'];
+            
+        //si recibo un usuario, muestro los datos de este. Sino los publicos
+        if(isset($_GET['user'])&&!empty($_GET['user'])){
             $this->getStickersByUser($_GET['user'],$limit, $page, $order, $sort, $filter);
         }else{
             $this->getPublicResults($limit, $page, $order, $sort, $filter);
@@ -65,9 +66,8 @@ class StickerApiController{
             $column=substr($filter, 0, strlen($column)+1);
         }
             
-        //evaluo variable page y limit para evitar inyeccion sql
         //calcular de manera que se pueda mostrar que ese numero de pagina no existe
-        //calculo start. Ya chequee antes que los datos sean numericos
+        //calculo offset. xq ya chequee antes que los datos sean numericos
         $start = ($page -1) * $limit;
         $stickers=$this->model->getOrderedFilteredAndPaginated($column,$sort,$order,$limit,$start,$value);
 
@@ -80,34 +80,47 @@ class StickerApiController{
 
     //esto lo dejo en una funcion porque es una funcion que podria reutilizar
     public function getStickersByUser($user,$limit, $page, $order, $sort, $filter){
-        var_dump($filter);
-        $filters=preg_split('/[=|>]/', $filter);
-        $column=$filters[0];
-        $value=$filters[1];
-        //falta metodo que me retorne las columnas de la tabla status
-        //falta metodo que me filte por igual, porque el que tengo filtra por >=
+
+        //filter=columuna=valor (junto al =, tambien puedo mandar un ">" o "<")
+        $filters=preg_split('/[=|>|<]/', $filter);
+
+        //array con las columnas de status
+        $columnNames=["id","repetida","faltante"];
+
+        //si la columna recibida por get EXISTE entonces seteo las variables 
+        if(in_array($filters[0],$columnNames)||$this->isColumn($filters[0])){
+            $column=$filters[0];
+            $value=$filters[1];
+        }else{
+            $this->view->response("Esa columna no existe", 404);
+            return;
+        }
+        
+        //si filtro contiene un ">" o un "<" lo agrego a mi variable para usarlo en la consulta
         if(str_contains($filter, '>')||str_contains($filter, '<')){
             $column=substr($filter, 0, strlen($column)+1);
         }
 
+        //calculo el offset
         $start = ($page -1) * $limit;
+
+        //hago la consulta
         $stickers=$this->model->getStickersByUser($user,$column,$sort,$order,$limit,$start,$value);
 
         if($stickers)
-            $this->view->response($stickers);
+            $this->view->response($stickers,200);
         else 
             $this->view->response("No hay figuritas con ese status", 404);
     }
 
     public function getSticker($params = null){
-        var_dump($params);
         //traigo el id del arreglo de params
         $id = $params[':ID'];
         $sticker=$this->model->getById($id);
 
         //si no existe esa figurita devuelvo 404
         if($sticker)
-            $this->view->response($sticker);
+            $this->view->response($sticker,200);
         else 
             $this->view->response("La figurita=$id no existe", 404);
     }
@@ -120,10 +133,10 @@ class StickerApiController{
         }
 
         $sticker = $this->getData();
+
         if(empty($sticker->numero)||empty($sticker->nombre)||empty($sticker->apellido)||empty($sticker->id_pais)){
             $this->view->response("Complete los datos", 400);
         }else{ 
-            //podria hacer q no devuelve el id, y en el string para la vista hacer sticker->numero
             $numero = $this->model->insert($sticker->numero,$sticker->nombre,$sticker->apellido,$sticker->id_pais); //insert devuelve id
             
             $this->view->response("La figurita numero $numero se agrego con exito", 201);
@@ -136,7 +149,7 @@ class StickerApiController{
         $sticker = $this->model->getById($id);
         if($sticker){
             $this->model->delete($id);
-            $this->view->response("La figurita=$id fue borrada con exito", $sticker);
+            $this->view->response("La figurita=$id fue borrada con exito",200);
 
         } else
             $this->view->response("La figurita $id no existe",404);

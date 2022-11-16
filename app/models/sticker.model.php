@@ -22,10 +22,10 @@ class StickerModel{
         return $sticker;
     }
 
-    public function insert($numero, $nombre, $apellido, $id_pais)
+    public function insert($numero, $nombre, $apellido, $fk_pais)
     {
-        $query = $this->db->prepare("INSERT INTO figuritas (numero, nombre, apellido, id_pais) VALUES (?,?,?,?)");
-        $query->execute([$numero, $nombre, $apellido, $id_pais]);
+        $query = $this->db->prepare("INSERT INTO figuritas (numero, nombre, apellido, fk_pais) VALUES (?,?,?,?)");
+        $query->execute([$numero, $nombre, $apellido, $fk_pais]);
         //retorno numero, porque lastInsertId() siempre retorna 0 porque no es autoincremental
         return $numero;
     }
@@ -36,9 +36,9 @@ class StickerModel{
         $query->execute([$numero]);
     }
 
-    public function update($id, $nombre, $apellido,$id_pais){
-        $query = $this->db->prepare("UPDATE figuritas SET nombre=?, apellido=?, id_pais=? WHERE numero=?");
-        $query->execute([$nombre, $apellido, $id_pais, $id]);
+    public function update($id, $nombre, $apellido,$fk_pais){
+        $query = $this->db->prepare("UPDATE figuritas SET nombre=?, apellido=?, fk_pais=? WHERE numero=?");
+        $query->execute([$nombre, $apellido, $fk_pais, $id]);
     }
 
     public function getColumnsNames(){
@@ -50,7 +50,6 @@ class StickerModel{
 
     public function getStickersByUser($user,$column,$sort,$order,$limit,$start,$value){
         $query=$this->db->prepare("SELECT a.nombre,a.apellido,a.numero FROM figuritas a INNER JOIN status b ON a.numero=b.fk_figurita WHERE $column=? AND fk_user=? ORDER BY $sort $order LIMIT $limit OFFSET $start");
-        var_dump($query);
         $query->execute([$value,$user]);
         $stickers=$query->fetchAll(PDO::FETCH_OBJ);
         return $stickers;
@@ -64,13 +63,10 @@ class StickerModel{
     }
 
     public function getOrderedFilteredAndPaginated($column,$sort,$order,$limit,$start,$value){
-        var_dump($column);
         $query=$this->db->prepare("SELECT * FROM figuritas a WHERE $column=? ORDER BY $sort $order LIMIT $limit OFFSET $start");
-        var_dump($query);
         $query->execute([$value]);
         $stickers=$query->fetchAll(PDO::FETCH_OBJ);
         return $stickers;
     }
-
 
 }
