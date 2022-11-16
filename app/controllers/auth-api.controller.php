@@ -45,7 +45,7 @@ class AuthApiController{
         $userpass = explode(":", $userpass);
         $user = $userpass[0];
         $pass = $userpass[1];
-        $usuario=$this->model->getUserByEmail($user);
+        $usuario=$this->model->getUserByUsername($user);
         if($usuario && password_verify($pass, $usuario->password)){
             //  crear un token
             $header = array(

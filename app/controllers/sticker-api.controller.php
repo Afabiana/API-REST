@@ -27,8 +27,7 @@ class StickerApiController{
         $page=1;
         $order="asc";
         $limit=$this->model->getTableSize();//esta funcion retorna el total de filas que tengo
-        
-        //total de figus/limit>page ERROR ESA PAGINA NO EXISTE
+
 
         //si recibo parametros por get cambio el valor de las variables
         if(isset($_GET['filter'])&&!empty($_GET['filter']))
@@ -54,7 +53,7 @@ class StickerApiController{
     public function getPublicResults($limit, $page, $order, $sort, $filter){
         //hago un explode del filtro. Tengo nombre columna por un lado, y valor por el otro
         $filters=preg_split('/[=|>|<]/', $filter);
-        if($this->isColumn($filters[0])){
+        if($this->isColumn($filters[0])&&$this->isColumn($sort)){
             $column=$filters[0];
             $value=$filters[1];
         }else{
@@ -66,7 +65,6 @@ class StickerApiController{
             $column=substr($filter, 0, strlen($column)+1);
         }
             
-        //calcular de manera que se pueda mostrar que ese numero de pagina no existe
         //calculo offset. xq ya chequee antes que los datos sean numericos
         $start = ($page -1) * $limit;
         $stickers=$this->model->getOrderedFilteredAndPaginated($column,$sort,$order,$limit,$start,$value);
@@ -81,6 +79,12 @@ class StickerApiController{
     //esto lo dejo en una funcion porque es una funcion que podria reutilizar
     public function getStickersByUser($user,$limit, $page, $order, $sort, $filter){
 
+        //pido token para accionar
+        if(!$this->authhelper->isLoggedIn()){
+            $this->view->response("No estas logeado", 401);
+            return;
+        }
+        
         //filter=columuna=valor (junto al =, tambien puedo mandar un ">" o "<")
         $filters=preg_split('/[=|>|<]/', $filter);
 
@@ -88,7 +92,7 @@ class StickerApiController{
         $columnNames=["id","repetida","faltante"];
 
         //si la columna recibida por get EXISTE entonces seteo las variables 
-        if(in_array($filters[0],$columnNames)||$this->isColumn($filters[0])){
+        if(in_array($filters[0],$columnNames)||($this->isColumn($filters[0])&&$this->isColumn($sort))){
             $column=$filters[0];
             $value=$filters[1];
         }else{
@@ -175,8 +179,7 @@ class StickerApiController{
 
         if($sticker){
             $this->model->update($id, $data->nombre, $data->apellido,$data->fk_pais);
-            $this->view->response("La figurita $id se modifico con exito:");
-        //podria armar el json como string y mandarlo todo como un mismo texto
+            $this->view->response("La figurita $id se modifico con exito",200);
         }else
             $this->view->response("La figurita $id no existe",404);
     }
