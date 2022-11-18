@@ -93,7 +93,7 @@ class StickerApiController{
         $columnNames=["id","repetida","faltante"];
 
         //si la columna recibida por get EXISTE entonces seteo las variables 
-        if(in_array($filters[0],$columnNames)||($this->isColumn($filters[0])&&$this->isColumn($sort))){
+        if((in_array($filters[0],$columnNames)||$this->isColumn($filters[0]))&&$this->isColumn($sort)){
             $column=$filters[0];
             $value=$filters[1];
         }else{
