@@ -71,7 +71,7 @@ class StickerApiController{
         $stickers=$this->model->getOrderedFilteredAndPaginated($column,$sort,$order,$limit,$start,$value);
 
         if($stickers)
-            $this->view->response($stickers);
+            $this->view->response($stickers,200);
         else
             $this->view->response("No se encontraron resultados para esa peticion", 404);
         
