@@ -115,7 +115,7 @@ class StickerApiController{
         if($stickers)
             $this->view->response($stickers,200);
         else 
-            $this->view->response("No hay figuritas con ese status", 404);
+            $this->view->response("No hay figuritas con esas caracteristicas", 404);
     }
 
     public function getSticker($params = null){
